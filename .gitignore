@@ -16,8 +16,9 @@ __pycache__/
 dist/
 build/
 
-# Reports (generated at runtime)
+# Reports and generated assets (created at runtime)
 reports/
+web/assets/*.png
 
 # macOS
 .DS_Store
