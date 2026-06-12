@@ -34,7 +34,7 @@ if not GROQ_API_KEY:
     print("WARNING: GROQ_API_KEY is not set in the environment or .env file.")
 
 # Project imports
-from tools.ticker_resolver import resolve_ticker
+from tools.ticker_resolver import resolve_listings
 from tools.data_prefetch import build_verified_context
 from crew.stock_crew import run_analysis
 
@@ -135,17 +135,21 @@ def run_analysis_worker(analysis_id: str, ticker: str, company_name: str):
 def start_analysis(stock: str, background_tasks: BackgroundTasks):
     if not stock:
         raise HTTPException(status_code=400, detail="Stock query parameter is required")
-        
+
     try:
-        ticker_info = resolve_ticker(stock)
+        listing_info = resolve_listings(stock)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Ticker resolution failed: {exc}")
-        
-    ticker = ticker_info["ticker"]
-    company_name = ticker_info["full_name"]
-    
+
+    # When the company has both an Indian and a US listing, ask the user to choose.
+    if listing_info["status"] == "choose":
+        return {"status": "choose", "options": listing_info["options"]}
+
+    ticker = listing_info["ticker"]
+    company_name = listing_info["full_name"]
+
     analysis_id = uuid.uuid4().hex
-    
+
     with analyses_lock:
         analyses[analysis_id] = {
             "analysis_id": analysis_id,
@@ -156,14 +160,14 @@ def start_analysis(stock: str, background_tasks: BackgroundTasks):
             "results": None,
             "error": None
         }
-        
-    # Schedule the background worker thread
+
     background_tasks.add_task(run_analysis_worker, analysis_id, ticker, company_name)
-    
+
     return {
+        "status": "started",
         "analysis_id": analysis_id,
         "ticker": ticker,
-        "company_name": company_name
+        "company_name": company_name,
     }
 
 @app.get("/api/status/{analysis_id}")

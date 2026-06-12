@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Application Views
     const searchSection = document.getElementById('search-section');
+    const chooserSection = document.getElementById('chooser-section');
     const loadingSection = document.getElementById('loading-section');
     const dashboardSection = document.getElementById('dashboard-section');
     
@@ -91,12 +92,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Listing Chooser — shown when a company is dual-listed on India + US
+    const chooserTitle = document.getElementById('chooser-title');
+    const chooserSubtitle = document.getElementById('chooser-subtitle');
+    const chooserOptions = document.getElementById('chooser-options');
+    document.getElementById('chooser-back-btn').addEventListener('click', () => resetAppToSearch());
+
+    function showListingChooser(options) {
+        const companyName = options[0].full_name.split(' ').slice(0, 3).join(' ');
+        chooserTitle.innerText = `${companyName} — Choose a Listing`;
+        chooserSubtitle.innerText = 'This company is listed on multiple exchanges. Select which listing you want to analyse.';
+
+        chooserOptions.innerHTML = '';
+        options.forEach(opt => {
+            const isIndian = opt.ticker.endsWith('.NS') || opt.ticker.endsWith('.BO');
+            const flag = isIndian ? '🇮🇳' : '🇺🇸';
+            const card = document.createElement('div');
+            card.className = 'chooser-option-card';
+            card.innerHTML = `
+                <div class="chooser-flag">${flag}</div>
+                <div class="chooser-exchange">${escapeHtml(opt.exchange_name)}</div>
+                <div class="chooser-ticker">${escapeHtml(opt.ticker)}</div>
+                <div class="chooser-name">${escapeHtml(opt.full_name)}</div>
+                <button class="btn btn-primary btn-small chooser-select-btn">
+                    <span>Analyse this listing</span>
+                    <i class="fa-solid fa-arrow-right btn-icon"></i>
+                </button>`;
+            card.querySelector('.chooser-select-btn').addEventListener('click', () => {
+                searchSection.style.display = 'none';
+                chooserSection.style.display = 'none';
+                startAnalysisFlow(opt.ticker);
+            });
+            chooserOptions.appendChild(card);
+        });
+
+        searchSection.style.display = 'none';
+        chooserSection.style.display = 'flex';
+        loadingSection.style.display = 'none';
+        dashboardSection.style.display = 'none';
+        headerMeta.style.display = 'none';
+    }
+
     // Start Analysis Request
     function startAnalysisFlow(query) {
-        // Update UI states
         searchBtn.disabled = true;
         searchBtn.querySelector('span').innerText = 'Resolving...';
-        
+
         fetch(`${ANALYZE_API}?stock=${encodeURIComponent(query)}`)
             .then(res => {
                 if (!res.ok) {
@@ -105,9 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return res.json();
             })
             .then(data => {
-                // data contains: { analysis_id, ticker, company_name }
-                initiateLoadingView(data);
-                pollStatus(data.analysis_id);
+                if (data.status === 'choose') {
+                    searchBtn.disabled = false;
+                    searchBtn.querySelector('span').innerText = 'Analyze Stock';
+                    showListingChooser(data.options);
+                } else {
+                    // status === 'started' (or legacy response without status field)
+                    initiateLoadingView(data);
+                    pollStatus(data.analysis_id);
+                }
             })
             .catch(err => {
                 showErrorCard(err.message);
@@ -592,12 +639,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetAppToSearch() {
         if (pollingInterval) clearInterval(pollingInterval);
-        
+
         searchSection.style.display = 'flex';
+        chooserSection.style.display = 'none';
         loadingSection.style.display = 'none';
         dashboardSection.style.display = 'none';
         headerMeta.style.display = 'none';
-        
+
         stockInput.value = '';
         searchBtn.disabled = false;
         searchBtn.querySelector('span').innerText = 'Analyze Stock';
