@@ -63,7 +63,23 @@
             </div>
         </section>
 
-        <!-- 2. Loading & Streaming Terminal View -->
+        <!-- 2. Listing Chooser (shown when a company is dual-listed on India + US) -->
+        <section id="chooser-section" class="search-section" style="display: none;">
+            <div class="search-card chooser-card">
+                <div class="card-glow"></div>
+                <div class="search-header">
+                    <h2 id="chooser-title">Choose a Listing</h2>
+                    <p id="chooser-subtitle">This company is listed on multiple exchanges. Select which listing you want to analyse.</p>
+                </div>
+                <div class="chooser-options" id="chooser-options"></div>
+                <button type="button" class="btn btn-secondary chooser-back-btn" id="chooser-back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Search</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. Loading & Streaming Terminal View -->
         <section id="loading-section" class="loading-section" style="display: none;">
             <div class="loading-container">
                 <div class="loading-card">

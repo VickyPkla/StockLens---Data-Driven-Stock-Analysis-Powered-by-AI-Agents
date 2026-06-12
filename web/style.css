@@ -1110,3 +1110,70 @@ body {
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* ==========================================================================
+   Dual-Listing Chooser
+   ========================================================================== */
+
+.chooser-card {
+    max-width: 680px;
+}
+
+.chooser-options {
+    display: flex;
+    gap: 16px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+.chooser-option-card {
+    flex: 1;
+    min-width: 220px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-align: center;
+}
+
+.chooser-option-card:hover {
+    border-color: var(--primary);
+    background: rgba(56, 132, 255, 0.07);
+    transform: translateY(-2px);
+}
+
+.chooser-flag {
+    font-size: 40px;
+    line-height: 1;
+}
+
+.chooser-exchange {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.chooser-ticker {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.05em;
+}
+
+.chooser-name {
+    font-size: 13px;
+    color: var(--text-white);
+    opacity: 0.8;
+}
+
+.chooser-back-btn {
+    margin-top: 24px;
+    align-self: flex-start;
+}
