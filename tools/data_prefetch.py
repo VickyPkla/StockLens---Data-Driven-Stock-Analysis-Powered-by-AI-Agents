@@ -225,6 +225,8 @@ def _fetch_fundamental(ticker: str) -> dict:
     result: dict = {}
 
     # --- Info / valuation ratios ---
+    _info_price: float | None = None
+    _info_shares: float | None = None
     try:
         info = t.info
         result["name"] = info.get("longName") or info.get("shortName") or ticker
@@ -257,6 +259,10 @@ def _fetch_fundamental(ticker: str) -> dict:
         else:
             # Fall back: yfinance stores this as the actual % value (e.g. 0.12 = 0.12%)
             result["dividend_yield_pct"] = info.get("dividendYield")
+        _info_price = float(current_price) if current_price else None
+        _info_shares = float(
+            info.get("sharesOutstanding") or info.get("impliedSharesOutstanding") or 0
+        ) or None
     except Exception:
         pass
 
@@ -375,6 +381,58 @@ def _fetch_fundamental(ticker: str) -> dict:
                     cap_employed = total_assets - curr_liab
                     annual[ds]["roce_pct"] = round(ebit / cap_employed * 100, 2) if (ebit and cap_employed) else None
         result["annual"] = annual
+    except Exception:
+        pass
+
+    # --- Fallback: compute key ratios from statements when .info lacks them ---
+    # yfinance .info is often incomplete for Indian/NSE stocks; statements are more reliable.
+    try:
+        fin = t.financials
+        bal = t.balance_sheet
+        if fin is not None and not fin.empty and bal is not None and not bal.empty:
+            fc = fin.columns[0]
+            bc = bal.columns[0]
+
+            # Current price: use info price or fall back to latest close
+            price = _info_price
+            if price is None:
+                hist = t.history(period="5d")
+                if not hist.empty:
+                    price = float(hist["Close"].iloc[-1])
+
+            revenue = _df_get(fin, fc, "Total Revenue")
+            gross_profit = _df_get(fin, fc, "Gross Profit")
+            net_income = _df_get(fin, fc, "Net Income", "Net Income Common Stockholders")
+            equity = _df_get(bal, bc,
+                "Stockholders Equity", "Common Stock Equity",
+                "Total Stockholder Equity", "Total Equity Gross Minority Interest")
+            curr_assets = _df_get(bal, bc, "Current Assets", "Total Current Assets")
+            curr_liab = _df_get(bal, bc, "Current Liabilities", "Total Current Liabilities")
+            total_debt = _df_get(bal, bc,
+                "Total Debt", "Long Term Debt And Capital Lease Obligation", "Long Term Debt")
+
+            if result.get("gross_margin") is None and revenue and gross_profit:
+                result["gross_margin"] = gross_profit / revenue
+
+            if result.get("net_margin") is None and revenue and net_income:
+                result["net_margin"] = net_income / revenue
+
+            if result.get("trailing_pe") is None and price and net_income and _info_shares:
+                eps = net_income / _info_shares
+                if eps > 0:
+                    result["trailing_pe"] = price / eps
+
+            if result.get("pb") is None and price and equity and _info_shares:
+                bvps = equity / _info_shares
+                if bvps > 0:
+                    result["pb"] = price / bvps
+
+            # D/E stored as percentage to match yfinance convention (e.g. 45.23 = 45.23%)
+            if result.get("debt_to_equity") is None and equity and total_debt and float(equity) != 0:
+                result["debt_to_equity"] = (total_debt / equity) * 100
+
+            if result.get("current_ratio") is None and curr_assets and curr_liab and float(curr_liab) != 0:
+                result["current_ratio"] = curr_assets / curr_liab
     except Exception:
         pass
 
