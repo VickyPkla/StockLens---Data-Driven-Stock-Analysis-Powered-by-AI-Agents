@@ -21,7 +21,17 @@ _TASK_TEMPLATE = """Perform a comprehensive sentiment analysis of {company_name}
 
 {verified_sentiment_data}
 
-ANCHOR TO VERIFIED DATA: Use only the VADER scores and institutional data above. Never substitute training-knowledge values.
+⚠️ STOP — DATA AVAILABILITY CHECK (evaluate before writing anything):
+If the verified data block above starts with "ERROR:" or contains no actual data values:
+  → Your ONLY allowed output is: "ANALYSIS UNAVAILABLE: [copy the exact error text]. No estimates or placeholders substituted for missing data."
+  → Do NOT write any analysis sections or scores.
+Only continue if real data values are present in the block above.
+
+ANCHOR TO VERIFIED DATA:
+- Every score, figure, and headline in this report MUST come from the verified block above.
+- If a value shows "N/A" in the verified block, write "N/A" — never substitute an estimate.
+- If a section's data is absent (e.g., no insider transactions listed), write "No data available" — do NOT infer or fabricate activity.
+- Do NOT use training knowledge to supply VADER scores, headline sentiment, insider counts, or institutional percentages.
 Today: {current_date}.
 
 Write the Sentiment Analysis Report directly from the verified data above.
@@ -32,14 +42,16 @@ VADER aggregate (avg_compound) as score/10. Top 5 headlines with individual scor
 Positive/neutral/negative counts. Improving or deteriorating trend?
 
 ## Analyst Sentiment
-Based on the headlines above, note any upgrade/downgrade signals or price target revisions.
-Trend moving bullish or bearish?
+Based only on the headlines present in the verified block above, note any upgrade/downgrade signals or price target revisions.
+If no such headlines are present, state "No analyst upgrade/downgrade data available."
 
 ## Insider Activity Sentiment
 From the insider transaction data above: predominantly buying or selling? Buy-to-sell ratio.
+If no insider data is present, state "No insider transaction data available."
 
 ## Institutional Flow
 Top 3 institutional holders and % stake from the verified data above. Ownership concentrated or diversified?
+If no institutional data is present, state "No institutional holder data available."
 
 ## Overall Sentiment Assessment
 Synthesise all signals. State: STRONGLY BULLISH / BULLISH / NEUTRAL / BEARISH / STRONGLY BEARISH
