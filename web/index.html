@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockLens — Multi-Agent AI Analysis</title>
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Chart.js for interactive visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="bg-glow bg-glow-secondary"></div>
+
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo" id="logo-home-btn" role="button" title="Go to home">
+                <i class="fa-solid fa-chart-line logo-icon"></i>
+                <span>STOCK<span class="highlight">LENS</span></span>
+            </div>
+            <div class="header-meta" id="header-meta" style="display: none;">
+                <span class="ticker-badge" id="meta-ticker">AAPL</span>
+                <span class="company-name" id="meta-name">Apple Inc.</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- 1. Centered Search Card -->
+        <section id="search-section" class="search-section">
+            <div class="search-card">
+                <div class="card-glow"></div>
+                <div class="search-header">
+                    <h2>Turning Market Data Into Investment Clarity</h2>
+                    <p>Enter any stock name or ticker symbol to run our 5-agent deep analysis pipeline powered by Groq and LangGraph.</p>
+                </div>
+                <form id="search-form" class="search-form">
+                    <div class="input-group">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="stock-input" placeholder="e.g. Apple, TSLA, Reliance Industries, INFY.NS" autocomplete="off" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="search-btn">
+                        <span>Analyze Stock</span>
+                        <i class="fa-solid fa-arrow-right btn-icon"></i>
+                    </button>
+                </form>
+                <div class="search-suggestions">
+                    <span>Popular:</span>
+                    <button type="button" class="suggest-btn" data-value="AAPL">AAPL</button>
+                    <button type="button" class="suggest-btn" data-value="TSLA">TSLA</button>
+                    <button type="button" class="suggest-btn" data-value="RELIANCE.NS">Reliance</button>
+                    <button type="button" class="suggest-btn" data-value="NVDA">NVDA</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Loading & Streaming Terminal View -->
+        <section id="loading-section" class="loading-section" style="display: none;">
+            <div class="loading-container">
+                <div class="loading-card">
+                    <div class="loading-spinner-wrapper">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-core"><i class="fa-solid fa-robot"></i></div>
+                    </div>
+                    <h3 id="loading-title">Orchestrating Agents...</h3>
+                    <p id="loading-subtitle">Resolving ticker symbol and pre-fetching live market datasets...</p>
+                    
+                    <div class="agent-steps">
+                        <div class="step-item active" id="step-prefetch">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Data Pre-fetch</span>
+                        </div>
+                        <div class="step-item" id="step-fundamental">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Fundamental Agent</span>
+                        </div>
+                        <div class="step-item" id="step-technical">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Technical Agent</span>
+                        </div>
+                        <div class="step-item" id="step-sentiment">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Sentiment Agent</span>
+                        </div>
+                        <div class="step-item" id="step-synthesis">
+                            <span class="step-dot"></span>
+                            <span class="step-label">Synthesis Strategist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live scrolling terminal -->
+                <div class="terminal-container">
+                    <div class="terminal-header">
+                        <div class="terminal-buttons">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div class="terminal-title">Agent Execution Stream</div>
+                        <div class="terminal-status"><span class="pulse-dot"></span> LIVE</div>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+                        <div class="terminal-line system">[System] Connection established. Initializing LangGraph state...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Dashboard Reports View -->
+        <section id="dashboard-section" class="dashboard-section" style="display: none;">
+            <!-- Stock Summary Header Bar -->
+            <div class="dashboard-summary-bar">
+                <div class="summary-left">
+                    <h1 id="stock-title-full">Apple Inc.</h1>
+                    <div class="ticker-details">
+                        <span id="stock-ticker-val" class="detail-badge">AAPL</span>
+                        <span id="stock-exchange-val" class="detail-badge opacity-60">NASDAQ</span>
+                    </div>
+                </div>
+                <div class="summary-right">
+                    <div class="rec-badge-container">
+                        <span class="rec-label">RECOMMENDATION</span>
+                        <span id="summary-rec-badge" class="rec-badge buy">BUY</span>
+                    </div>
+                    <div class="metrics-quick-list">
+                        <div class="quick-metric">
+                            <span class="q-label">Conviction</span>
+                            <span id="quick-conviction" class="q-value text-gold">HIGH</span>
+                        </div>
+                        <div class="quick-metric">
+                            <span class="q-label">Risk Level</span>
+                            <span id="quick-risk" class="q-value text-orange">MEDIUM</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" id="new-analysis-btn">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        <span>New Analysis</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <nav class="report-tabs">
+                <button class="tab-btn active" data-tab="summary">
+                    <i class="fa-solid fa-crown"></i>
+                    <span>Summary Report</span>
+                </button>
+                <button class="tab-btn" data-tab="fundamental">
+                    <i class="fa-solid fa-landmark"></i>
+                    <span>Fundamental Analysis</span>
+                </button>
+                <button class="tab-btn" data-tab="technical">
+                    <i class="fa-solid fa-chart-candlestick"></i>
+                    <span>Technical Analysis</span>
+                </button>
+                <button class="tab-btn" data-tab="risk">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Risk Analysis</span>
+                </button>
+                <button class="tab-btn" data-tab="sentiment">
+                    <i class="fa-solid fa-face-smile"></i>
+                    <span>Sentiment Analysis</span>
+                </button>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="tab-content-container">
+                <!-- A. Summary Report Tab -->
+                <div class="tab-pane active" id="tab-summary">
+                    <div class="report-layout-grid">
+                        <div class="report-visuals">
+                            <!-- Dynamic Targets / Summary Widget -->
+                            <div class="widget-card bg-glass">
+                                <h3 class="widget-title"><i class="fa-solid fa-bullseye"></i> Key Target Prices</h3>
+                                <div class="price-targets-list">
+                                    <div class="target-row">
+                                        <span>Current Price</span>
+                                        <span id="tgt-cmp" class="price-val">N/A</span>
+                                    </div>
+                                    <div class="target-row success">
+                                        <span>Suggested Buy Zone</span>
+                                        <span id="tgt-buy-zone" class="price-val highlight-green">N/A</span>
+                                    </div>
+                                    <div class="target-row danger">
+                                        <span>Stop Loss Level</span>
+                                        <span id="tgt-stop-loss" class="price-val text-red">N/A</span>
+                                    </div>
+                                    <div class="target-row warning">
+                                        <span>Short-Term Target</span>
+                                        <span id="tgt-st-target" class="price-val">N/A</span>
+                                    </div>
+                                    <div class="target-row info">
+                                        <span>1-Year Outlook Target</span>
+                                        <span id="tgt-1y-target" class="price-val highlight-blue">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-text scrollable-report">
+                            <div class="markdown-body" id="text-summary"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B. Fundamental Analysis Tab -->
+                <div class="tab-pane" id="tab-fundamental">
+                    <div class="report-layout-grid">
+                        <div class="report-visuals">
+                            <!-- Dynamic stats widget -->
+                            <div class="widget-card bg-glass">
+                                <h3 class="widget-title"><i class="fa-solid fa-scale-balanced"></i> Key Financial Multiples</h3>
+                                <table class="metrics-table" id="fundamental-metrics-table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Fundamental Score</td>
+                                            <td id="fund-score-val" class="font-bold text-green">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>P/E Ratio</td>
+                                            <td id="fund-pe-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>P/B Ratio</td>
+                                            <td id="fund-pb-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Debt to Equity</td>
+                                            <td id="fund-de-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Current Ratio</td>
+                                            <td id="fund-cr-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gross Margin</td>
+                                            <td id="fund-gm-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Net Margin</td>
+                                            <td id="fund-nm-val">N/A</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="report-text scrollable-report">
+                            <div class="markdown-body" id="text-fundamental"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- C. Technical Analysis Tab -->
+                <div class="tab-pane" id="tab-technical">
+                    <div class="report-layout-grid">
+                        <div class="report-visuals">
+                            <!-- Dynamic technical widget -->
+                            <div class="widget-card bg-glass">
+                                <h3 class="widget-title"><i class="fa-solid fa-compass"></i> Trend & Momentum Gauges</h3>
+                                <div class="gauges-container">
+                                    <div class="gauge-item">
+                                        <span class="g-label">RSI Indicator</span>
+                                        <span id="tech-rsi-val" class="g-val font-bold">N/A</span>
+                                        <div class="bar-bg"><div id="tech-rsi-bar" class="bar-fill" style="width: 50%;"></div></div>
+                                        <span id="tech-rsi-status" class="g-sub">Neutral</span>
+                                    </div>
+                                    <div class="gauge-item">
+                                        <span class="g-label">Technical Score</span>
+                                        <span id="tech-score-val" class="g-val text-blue font-bold">N/A</span>
+                                        <div class="bar-bg"><div id="tech-score-bar" class="bar-fill bg-blue" style="width: 50%;"></div></div>
+                                        <span id="tech-trend-status" class="g-sub">Neutral Trend</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-text scrollable-report">
+                            <div class="markdown-body" id="text-technical"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- D. Risk Analysis Tab -->
+                <div class="tab-pane" id="tab-risk">
+                    <div class="report-layout-grid">
+                        <div class="report-visuals">
+                            <!-- Dynamic Risk Widget -->
+                            <div class="widget-card bg-glass">
+                                <h3 class="widget-title"><i class="fa-solid fa-triangle-exclamation"></i> Risk Metrics</h3>
+                                <table class="metrics-table" id="risk-metrics-table">
+                                    <tbody>
+                                        <tr>
+                                            <td>Composite Risk Score</td>
+                                            <td id="risk-composite-val" class="font-bold text-orange">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Risk Level</td>
+                                            <td id="risk-level-val" class="font-bold">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Beta (vs Market)</td>
+                                            <td id="risk-beta-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Annual Volatility</td>
+                                            <td id="risk-vol-val">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Max Drawdown</td>
+                                            <td id="risk-mdd-val" class="text-red">N/A</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sharpe Ratio</td>
+                                            <td id="risk-sharpe-val">N/A</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="report-text scrollable-report">
+                            <div class="widget-card mb-4 bg-dark-slate">
+                                <h4 class="font-semibold text-white mb-2">Quantitative Risk Breakdown</h4>
+                                <pre id="text-risk-raw" class="raw-risk-block"></pre>
+                            </div>
+                            <div class="markdown-body" id="text-risk-explained">
+                                <h3>Risk Methodology</h3>
+                                <p>The Quantitative Risk Analysis is calculated using historical pricing data (1-2 years) to compute statistical metrics. The Composite Risk Score is derived from weighting price volatility, downside drawdown, market beta, debt leverage, and short-term liquidity health.</p>
+                                <ul>
+                                    <li><strong>Low Risk (0.0 - 4.0)</strong>: Stable dividend-paying large-caps with strong balance sheets and low volatility.</li>
+                                    <li><strong>Medium Risk (4.1 - 7.0)</strong>: Growth large-caps or stable mid-caps with moderate price fluctuations.</li>
+                                    <li><strong>High Risk (7.1 - 10.0)</strong>: Volatile high-growth sectors, turnarounds, small-caps, or leveraged companies.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- E. Sentiment Analysis Tab -->
+                <div class="tab-pane" id="tab-sentiment">
+                    <div class="report-layout-grid">
+                        <div class="report-visuals">
+                            <!-- Dynamic Sentiment Chart -->
+                            <div class="widget-card bg-glass">
+                                <h3 class="widget-title"><i class="fa-solid fa-heart-pulse"></i> Sentiment Signal</h3>
+                                <div class="sentiment-donut-wrapper">
+                                    <canvas id="sentimentChartCanvas"></canvas>
+                                </div>
+                                <div class="sentiment-meta-summary">
+                                    <div class="meta-row">
+                                        <span>Sentiment Score</span>
+                                        <span id="sent-score-val" class="font-bold text-teal">N/A</span>
+                                    </div>
+                                    <div class="meta-row">
+                                        <span>Overall Verdict</span>
+                                        <span id="sent-verdict-val" class="font-bold">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-text scrollable-report">
+                            <div class="markdown-body" id="text-sentiment"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>Disclaimer: This report is generated by a multi-agent artificial intelligence system using Groq and is for educational and informational purposes only. It does not constitute financial or investment advice. Always consult a licensed financial professional before trading.</p>
+            <p class="copyright">&copy; 2026 StockLens. Built with CrewAI &amp; LangGraph.</p>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js?v=2"></script>
+</body>
+</html>

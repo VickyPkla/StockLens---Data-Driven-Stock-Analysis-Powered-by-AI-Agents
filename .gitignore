@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.*
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Reports (generated at runtime)
+reports/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

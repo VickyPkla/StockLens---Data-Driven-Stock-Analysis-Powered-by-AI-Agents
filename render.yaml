@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: stock-analyser
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT --workers 1
+    envVars:
+      - key: ALPHA_VANTAGE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        sync: false
+      - key: CREWAI_TELEMETRY_OPT_OUT
+        value: "true"
