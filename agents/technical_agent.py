@@ -21,7 +21,17 @@ _TASK_TEMPLATE = """Perform a comprehensive technical analysis of {company_name}
 
 {verified_technical_data}
 
-ANCHOR TO VERIFIED DATA: Use only the numbers above. Never substitute training-knowledge values.
+⚠️ STOP — DATA AVAILABILITY CHECK (evaluate before writing anything):
+If the verified data block above starts with "ERROR:" or contains no actual data values:
+  → Your ONLY allowed output is: "ANALYSIS UNAVAILABLE: [copy the exact error text]. No estimates or placeholders substituted for missing data."
+  → Do NOT write any analysis sections, scores, or price levels.
+Only continue if real data values are present in the block above.
+
+ANCHOR TO VERIFIED DATA:
+- Every numerical value in this report MUST come from the verified block above.
+- If a value shows "N/A" in the verified block, write "N/A" — never substitute an estimate.
+- If a metric is absent from the verified block, write "Not available" — do NOT use training knowledge to fill it in.
+- Do NOT invent, estimate, or approximate any price, indicator value, support/resistance level, or target price.
 Today: {current_date}.
 
 Write the Technical Analysis Report directly from the verified data above.

@@ -126,15 +126,26 @@ def prefetch_node(state: AnalysisState) -> dict:
     }
 
 
+def _is_data_unavailable(ctx: str) -> bool:
+    """Return True if a verified context block signals a fetch failure."""
+    stripped = ctx.strip()
+    return not stripped or stripped.startswith("ERROR:")
+
+
 def fundamental_node(state: AnalysisState) -> dict:
     """Run the Fundamental Analyst agent."""
+    fund_ctx = state["fund_ctx"]
+    if _is_data_unavailable(fund_ctx):
+        msg = f"ANALYSIS UNAVAILABLE: Verified fundamental data could not be fetched. {fund_ctx.strip()} No figures estimated or substituted."
+        print(f"[LangGraph] fundamental_node: SKIPPED — {msg}")
+        return {"fundamental_report": msg}
     print("\n[LangGraph] fundamental_node: starting Fundamental Agent...")
     agent = create_fundamental_agent()
     task = create_fundamental_task(
         agent,
         state["ticker"],
         state["company_name"],
-        verified_fundamental_data=state["fund_ctx"],
+        verified_fundamental_data=fund_ctx,
     )
     report = _run_single_agent_crew(agent, task)
     print("[LangGraph] fundamental_node: complete.\n")
@@ -143,6 +154,11 @@ def fundamental_node(state: AnalysisState) -> dict:
 
 def technical_node(state: AnalysisState) -> dict:
     """Run the Technical Analyst agent."""
+    tech_ctx = state["tech_ctx"]
+    if _is_data_unavailable(tech_ctx):
+        msg = f"ANALYSIS UNAVAILABLE: Verified technical data could not be fetched. {tech_ctx.strip()} No figures estimated or substituted."
+        print(f"[LangGraph] technical_node: SKIPPED — {msg}")
+        return {"technical_report": msg}
     print("[LangGraph] technical_node: waiting 15s inter-agent gap...")
     time.sleep(15)
     print("\n[LangGraph] technical_node: starting Technical Agent...")
@@ -151,7 +167,7 @@ def technical_node(state: AnalysisState) -> dict:
         agent,
         state["ticker"],
         state["company_name"],
-        verified_technical_data=state["tech_ctx"],
+        verified_technical_data=tech_ctx,
     )
     report = _run_single_agent_crew(agent, task)
     print("[LangGraph] technical_node: complete.\n")
@@ -160,6 +176,11 @@ def technical_node(state: AnalysisState) -> dict:
 
 def sentiment_node(state: AnalysisState) -> dict:
     """Run the Sentiment Analyst agent."""
+    sentiment_ctx = state["sentiment_ctx"]
+    if _is_data_unavailable(sentiment_ctx):
+        msg = f"ANALYSIS UNAVAILABLE: Verified sentiment data could not be fetched. {sentiment_ctx.strip()} No figures estimated or substituted."
+        print(f"[LangGraph] sentiment_node: SKIPPED — {msg}")
+        return {"sentiment_report": msg}
     print("[LangGraph] sentiment_node: waiting 15s inter-agent gap...")
     time.sleep(15)
     print("\n[LangGraph] sentiment_node: starting Sentiment Agent...")
@@ -168,7 +189,7 @@ def sentiment_node(state: AnalysisState) -> dict:
         agent,
         state["ticker"],
         state["company_name"],
-        verified_sentiment_data=state["sentiment_ctx"],
+        verified_sentiment_data=sentiment_ctx,
     )
     report = _run_single_agent_crew(agent, task)
     print("[LangGraph] sentiment_node: complete.\n")

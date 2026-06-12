@@ -51,6 +51,18 @@ TECHNICAL ANALYSIS REPORT:
 {technical_report}
 ════════════════════════════════════════════
 
+⚠️ STOP — DATA AVAILABILITY CHECK (evaluate before writing anything):
+If ANY of the reports above contain "ANALYSIS UNAVAILABLE" or "RECOMMENDATION UNAVAILABLE":
+  → Your ONLY allowed output is: "CHALLENGE UNAVAILABLE: One or more upstream analyses failed. No challenge can be produced without complete verified data."
+  → Do NOT write any challenge sections or invent figures to fill the gap.
+Only continue if all three reports contain real analysis.
+
+ANCHOR TO REPORTS ONLY:
+- Every data point, price, ratio, and metric you cite MUST appear in the reports above.
+- Do NOT introduce any financial figure, price level, ratio, or valuation not present in those reports.
+- Do NOT use your training knowledge to supply missing numbers or to estimate what the data "probably" shows.
+- If a figure is "N/A" or "Not available" in the source reports, note that gap — do not substitute a value.
+
 Begin your response with "Final Answer:" on the very first line, then challenge the synthesis recommendation rigorously. Do NOT simply agree with it.
 
 ## Main Thesis Challenges

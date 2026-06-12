@@ -21,10 +21,20 @@ _TASK_TEMPLATE = """Perform a comprehensive fundamental analysis of {company_nam
 
 {verified_fundamental_data}
 
-ANCHOR TO VERIFIED DATA: Use only the numbers above. Never substitute training-knowledge values for any figure present in the verified block.
+⚠️ STOP — DATA AVAILABILITY CHECK (evaluate before writing anything):
+If the verified data block above starts with "ERROR:" or contains no actual data values:
+  → Your ONLY allowed output is: "ANALYSIS UNAVAILABLE: [copy the exact error text]. No estimates or placeholders substituted for missing data."
+  → Do NOT write any analysis sections, scores, or price levels.
+Only continue if real data values are present in the block above.
+
+ANCHOR TO VERIFIED DATA:
+- Every numerical value in this report MUST come from the verified block above.
+- If a value shows "N/A" in the verified block, write "N/A" — never substitute an estimate.
+- If a metric is absent from the verified block, write "Not available" — do NOT use training knowledge to fill it in.
+- Do NOT invent, estimate, or approximate any price, ratio, indicator, or financial figure.
 Today: {current_date}.
 
-Write a Fundamental Analysis Report directly from the verified data above. For the Valuation vs Peers section, use your domain knowledge to name 2-3 direct competitors and state their typical valuation ranges — clearly noting these are approximate.
+Write a Fundamental Analysis Report directly from the verified data above.
 Begin your response with "Final Answer:" on the very first line.
 
 ## Business Overview
@@ -46,7 +56,9 @@ Operating CF and Free CF (2-3 years). FCF positive and growing?
 Last 4 quarters: actual vs estimate EPS with surprise %. Consistent beats, misses, or mixed?
 
 ## Valuation vs Peers
-P/E (trailing/forward), P/B, EV/EBITDA for {company_name}. Name 2-3 direct competitors and compare typical multiples. Premium/discount/fairly valued?
+Report ONLY the P/E (trailing/forward), P/B, and EV/EBITDA values from the verified block above for {company_name}.
+Name 2-3 direct competitors for qualitative context only. Do NOT state specific valuation multiples, ratios, or price figures for competitors — you do not have verified data for them.
+State whether {company_name} appears premium/discount/fairly valued based solely on the verified ratios above.
 
 ## Analyst & Institutional Sentiment
 Buy/hold/sell breakdown, mean price target and implied upside. Top institutional holders; notable insider activity.

@@ -40,6 +40,18 @@ CRITICAL: The Risk Level in your report MUST match the Composite Risk Score in V
 
 {technical_report_section}
 
+⚠️ STOP — DATA AVAILABILITY CHECK (evaluate before writing anything):
+If ANY of the reports above contain "ANALYSIS UNAVAILABLE" or "ERROR:", do NOT generate price targets, action prices, or specific numerical recommendations for those components.
+Instead, for any section requiring data from an unavailable report, write: "Not available — [component] data could not be fetched."
+Do NOT substitute estimated, approximate, or training-knowledge values for any missing figure.
+Only produce a full recommendation if all three analysis reports (fundamental, technical, sentiment) contain real data.
+If critical data is missing, output: "RECOMMENDATION UNAVAILABLE: [list which analyses failed]. A reliable recommendation cannot be generated without complete verified data."
+
+ANCHOR TO REPORTS:
+- Every price, ratio, score, and metric cited in this synthesis MUST come from the reports and verified blocks above.
+- Do NOT introduce any figure not present in those inputs.
+- If a value is "N/A" or "Not available" in the source reports, carry it forward as such — never substitute an estimate.
+
 Begin your response with "Final Answer:" on the very first line, then write the Final Investment Report with these sections:
 
 ## Executive Summary
