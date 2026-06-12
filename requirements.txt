@@ -1,5 +1,6 @@
 crewai==1.14.6
 crewai-tools==1.14.6
+litellm==1.88.1
 langgraph==1.2.4
 langchain-core==1.4.2
 fastapi==0.136.3
