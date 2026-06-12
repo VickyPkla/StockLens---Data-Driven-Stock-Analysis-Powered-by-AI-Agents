@@ -1,5 +1,9 @@
-crewai>=0.120.0
-crewai-tools>=0.40.0
+crewai==1.14.6
+crewai-tools==1.14.6
+langgraph==1.2.4
+langchain-core==1.4.2
+fastapi==0.136.3
+uvicorn==0.48.0
 yfinance>=0.2.54
 requests>=2.32.0
 rich>=13.9.0
@@ -7,7 +11,4 @@ python-dotenv>=1.0.1
 pandas>=2.2.3
 numpy>=2.0.0
 ta>=0.11.0
-langgraph>=0.2.0
-langchain-core>=0.3.0
 vaderSentiment>=3.3.2
-fastapi>=0.110.0
